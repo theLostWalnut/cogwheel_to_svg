@@ -70,8 +70,14 @@ def create_gear_path(teeth, spacing, depth, bevel, actual_outer_dia):
 
     # A full tooth is:
     # Top flat -> Falling bevel -> Bottom flat -> Rising bevel
-    top_flat_angle = angle_solid - (2 * bevel_angle_deg)
-    bottom_flat_angle = angle_gap - (2 * bevel_angle_deg)
+    # Note: bevel happens once falling and once rising, so we subtract bevel_angle_deg once from solid and once from gap.
+    # Total solid arc = top_flat_angle + 2*(bevel_angle_deg/2) ? No, the bevel is a transition.
+    # Let's say top flat takes (angle_solid - bevel_angle_deg) and falling bevel takes bevel_angle_deg.
+    # Bottom flat takes (angle_gap - bevel_angle_deg) and rising bevel takes bevel_angle_deg.
+    # Sum = (angle_solid - bevel_angle_deg) + bevel_angle_deg + (angle_gap - bevel_angle_deg) + bevel_angle_deg
+    # Sum = angle_solid + angle_gap = angle_per_tooth. Correct.
+    top_flat_angle = angle_solid - bevel_angle_deg
+    bottom_flat_angle = angle_gap - bevel_angle_deg
 
     current_angle = 0.0
 
