@@ -236,8 +236,8 @@ class MainWindow(QMainWindow):
 
             # Replace the generic width/height attributes with explicit inches
             import re
-            content = re.sub(r'width="\d+"', f'width="{width_in}in"', content, count=1)
-            content = re.sub(r'height="\d+"', f'height="{height_in}in"', content, count=1)
+            content = re.sub(r'(<svg[^>]*\s)width="[^"]+"', rf'\g<1>width="{width_in}in"', content, count=1)
+            content = re.sub(r'(<svg[^>]*\s)height="[^"]+"', rf'\g<1>height="{height_in}in"', content, count=1)
 
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(content)
