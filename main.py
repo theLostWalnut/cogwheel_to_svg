@@ -226,7 +226,7 @@ class MainWindow(QMainWindow):
         # We can write it out, then do a quick string replace to guarantee it.
 
         painter = QPainter(generator)
-        self.scene.render(painter, target=QRectF(), source=rect)
+        self.scene.render(painter, target=rect, source=rect)
         painter.end()
 
         # Post-process the SVG to ensure dimensions are explicitly in inches
