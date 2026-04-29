@@ -79,7 +79,7 @@ def create_gear_path(teeth, spacing, depth, bevel, actual_outer_dia):
     top_flat_angle = angle_solid - bevel_angle_deg
     bottom_flat_angle = angle_gap - bevel_angle_deg
 
-    current_angle = 0.0
+    current_angle = -top_flat_angle / 2.0
 
     # Start at the top flat
     start_x = outer_radius * math.cos(math.radians(current_angle))
