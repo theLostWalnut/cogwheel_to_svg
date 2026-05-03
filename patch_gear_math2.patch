@@ -1,0 +1,6 @@
+--- gear_math.py
++++ gear_math.py
+@@ -166,3 +166,4 @@
+
+     path.closeSubpath()
++    return path

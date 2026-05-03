@@ -1,0 +1,15 @@
+--- gear_math.py
++++ gear_math.py
+@@ -158,2 +158,11 @@
+         path.lineTo(current_x, 0)
+
++    # Finish top flat on the right side
++    current_x += top_flat_length / 2.0
++    path.lineTo(current_x, 0)
++
++    # Draw the rest of the rectangle
++    path.lineTo(actual_width / 2.0, depth + height)
++    path.lineTo(-actual_width / 2.0, depth + height)
++
++    path.closeSubpath()
++    return path

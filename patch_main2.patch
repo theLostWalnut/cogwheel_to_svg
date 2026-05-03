@@ -1,0 +1,25 @@
+--- main.py
++++ main.py
+@@ -107,3 +107,5 @@
+         self.target_dia_spin.setValue(3.0)
+         self.target_dia_spin.setSuffix(" in")
+-        form_layout.addRow("Target Outer Dia:", self.target_dia_spin)
++
++        self.target_dia_label_ref = QLabel("Target Outer Dia:")
++        form_layout.addRow(self.target_dia_label_ref, self.target_dia_spin)
+
+@@ -194,5 +196,4 @@
+     def on_shape_changed(self, text):
+         if text == "Circle":
+-            form_layout = self.target_dia_spin.parent().layout()
+-            form_layout.labelForField(self.target_dia_spin).show()
+             self.target_dia_spin.show()
++            self.target_dia_label_ref.show()
+             self.target_width_label.hide()
+@@ -204,5 +205,4 @@
+         else:
+-            form_layout = self.target_dia_spin.parent().layout()
+-            form_layout.labelForField(self.target_dia_spin).hide()
+             self.target_dia_spin.hide()
++            self.target_dia_label_ref.hide()
+             self.target_width_label.show()

@@ -168,14 +168,3 @@ def create_rack_path(teeth, spacing, depth, bevel, actual_width, height):
         path.lineTo(current_x, depth)
         current_x += actual_bevel
         path.lineTo(current_x, 0)
-
-    # Finish top flat on the right side
-    current_x += top_flat_length / 2.0
-    path.lineTo(current_x, 0)
-
-    # Draw the rest of the rectangle
-    path.lineTo(actual_width / 2.0, depth + height)
-    path.lineTo(-actual_width / 2.0, depth + height)
-
-    path.closeSubpath()
-    return path
