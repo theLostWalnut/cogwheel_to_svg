@@ -3,7 +3,8 @@ import math
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QFormLayout, QDoubleSpinBox, QPushButton, QLabel, QGroupBox,
-    QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsItem
+    QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsItem,
+    QComboBox
 )
 from PyQt6.QtGui import QPainter, QColor, QPen, QBrush, QPainterPath
 from PyQt6.QtCore import Qt, QPointF
@@ -110,15 +111,42 @@ class MainWindow(QMainWindow):
         gear_layout = QVBoxLayout()
         form_layout = QFormLayout()
 
+        self.shape_combo = QComboBox()
+        self.shape_combo.addItems(["Circle", "Rectangle"])
+        form_layout.addRow("Shape:", self.shape_combo)
+
         self.target_dia_spin = QDoubleSpinBox()
         self.target_dia_spin.setRange(0.5, 50.0)
         self.target_dia_spin.setSingleStep(0.5)
         self.target_dia_spin.setValue(3.0)
         self.target_dia_spin.setSuffix(" in")
-        form_layout.addRow("Target Outer Dia:", self.target_dia_spin)
+
+        self.target_dia_label_ref = QLabel("Target Outer Dia:")
+        form_layout.addRow(self.target_dia_label_ref, self.target_dia_spin)
+
+        self.target_width_spin = QDoubleSpinBox()
+        self.target_width_spin.setRange(0.5, 50.0)
+        self.target_width_spin.setSingleStep(0.5)
+        self.target_width_spin.setValue(3.0)
+        self.target_width_spin.setSuffix(" in")
+        self.target_width_spin.hide()
+        self.target_width_label = QLabel("Target Width:")
+        self.target_width_label.hide()
+        form_layout.insertRow(2, self.target_width_label, self.target_width_spin)
+
+        self.target_height_spin = QDoubleSpinBox()
+        self.target_height_spin.setRange(0.5, 50.0)
+        self.target_height_spin.setSingleStep(0.5)
+        self.target_height_spin.setValue(1.0)
+        self.target_height_spin.setSuffix(" in")
+        self.target_height_spin.hide()
+        self.target_height_label = QLabel("Target Height:")
+        self.target_height_label.hide()
+        form_layout.insertRow(3, self.target_height_label, self.target_height_spin)
 
         self.actual_dia_label = QLabel("3.00 in")
-        form_layout.addRow("Actual Outer Dia:", self.actual_dia_label)
+        self.actual_dia_title = QLabel("Actual Outer Dia:")
+        form_layout.addRow(self.actual_dia_title, self.actual_dia_label)
 
         self.teeth_count_label = QLabel("18")
         form_layout.addRow("Teeth Count:", self.teeth_count_label)
@@ -151,15 +179,37 @@ class MainWindow(QMainWindow):
 
         # Signal connections
         self.target_dia_spin.valueChanged.connect(self.update_gear_preview)
+        self.target_width_spin.valueChanged.connect(self.update_gear_preview)
         self.spacing_spin.valueChanged.connect(self.update_gear_preview)
         self.spacing_spin.valueChanged.connect(self.update_all_gears)
         self.depth_spin.valueChanged.connect(self.update_all_gears)
         self.bevel_spin.valueChanged.connect(self.update_all_gears)
 
+        self.shape_combo.currentTextChanged.connect(self.on_shape_changed)
+
         self.add_btn.clicked.connect(self.add_gear_to_canvas)
         self.export_btn.clicked.connect(self.export_to_svg)
 
         # Initialize preview
+        self.update_gear_preview()
+
+    def on_shape_changed(self, text):
+        if text == "Circle":
+            self.target_dia_spin.show()
+            self.target_dia_label_ref.show()
+            self.target_width_label.hide()
+            self.target_width_spin.hide()
+            self.target_height_label.hide()
+            self.target_height_spin.hide()
+            self.actual_dia_title.setText("Actual Outer Dia:")
+        else:
+            self.target_dia_spin.hide()
+            self.target_dia_label_ref.hide()
+            self.target_width_label.show()
+            self.target_width_spin.show()
+            self.target_height_label.show()
+            self.target_height_spin.show()
+            self.actual_dia_title.setText("Actual Width:")
         self.update_gear_preview()
 
     def update_all_gears(self):
@@ -180,13 +230,16 @@ class MainWindow(QMainWindow):
                     child.update_position_from_parent()
 
     def add_gear_to_canvas(self):
+        gear_type = self.shape_combo.currentText().lower()
         target_dia = self.target_dia_spin.value()
+        target_width = self.target_width_spin.value()
+        target_height = self.target_height_spin.value()
         spacing = self.spacing_spin.value()
         depth = self.depth_spin.value()
         bevel = self.bevel_spin.value()
 
         # Delegate to the canvas to start the interactive placement
-        self.view.start_adding_gear(spacing, depth, bevel, target_dia)
+        self.view.start_adding_gear(spacing, depth, bevel, gear_type, target_dia, target_width, target_height)
 
     def export_to_svg(self):
         from PyQt6.QtWidgets import QFileDialog
@@ -245,11 +298,16 @@ class MainWindow(QMainWindow):
             print(f"Error modifying SVG headers: {e}")
 
     def update_gear_preview(self):
-        from gear_math import calculate_gear_math
-        target_dia = self.target_dia_spin.value()
+        from gear_math import calculate_gear_math, calculate_rack_math
         spacing = self.spacing_spin.value()
+        gear_type = self.shape_combo.currentText()
 
-        teeth, actual_dia = calculate_gear_math(target_dia, spacing)
+        if gear_type == "Circle":
+            target_dia = self.target_dia_spin.value()
+            teeth, actual_dia = calculate_gear_math(target_dia, spacing)
+        else:
+            target_width = self.target_width_spin.value()
+            teeth, actual_dia = calculate_rack_math(target_width, spacing)
 
         self.teeth_count_label.setText(str(teeth))
         self.actual_dia_label.setText(f"{actual_dia:.2f} in")

@@ -23,14 +23,14 @@ class CogwheelCanvas(QGraphicsView):
         # Keep track of mouse tracking explicitly
         self.setMouseTracking(True)
 
-    def start_adding_gear(self, spacing, depth, bevel, target_dia):
+    def start_adding_gear(self, spacing, depth, bevel, gear_type, target_dia, target_width, target_height):
         self.is_adding = True
         self.setDragMode(QGraphicsView.DragMode.NoDrag)
 
         if self.ghost_gear:
             self.scene().removeItem(self.ghost_gear)
 
-        self.ghost_gear = GearItem(target_dia, self.scene())
+        self.ghost_gear = GearItem(self.scene(), gear_type, target_dia, target_width, target_height)
         self.ghost_gear.rebuild_geometry(spacing, depth, bevel)
 
         # Style as glowing green ghost
@@ -50,6 +50,14 @@ class CogwheelCanvas(QGraphicsView):
             best_dist = float('inf')
             best_parent = None
             snap_angle = 0.0
+
+            if self.ghost_gear.gear_type == 'rectangle':
+                # Skip snapping for rectangle
+                self.ghost_gear.setPos(scene_pos)
+                self.ghost_gear.setRotation(0)
+                self.ghost_gear.parent_gear = None
+                self.ghost_gear.snapped = False
+                return
 
             # Snap distance threshold (in inches)
             SNAP_THRESHOLD = 1.0
